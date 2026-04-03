@@ -1,0 +1,797 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bayou Regional 2026 — BombsAway Predictions</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Barlow+Condensed:wght@300;400;500;600&family=Barlow:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --navy: #2A2957;
+  --gold: #C9A84C;
+  --dark: #0D0D1A;
+  --darker: #070711;
+  --card: #13132A;
+  --card-border: #1E1E45;
+  --text: #E0E0E0;
+  --muted: #808080;
+  --green: #4CAF50;
+  --red: #F44336;
+  --blue: #2196F3;
+  --orange: #FF9800;
+  --yellow: #FFD700;
+  --purple: #9C27B0;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  background: var(--darker);
+  color: var(--text);
+  font-family: 'Barlow', sans-serif;
+  line-height: 1.5;
+  overflow-x: hidden;
+}
+
+.hero {
+  background: linear-gradient(135deg, var(--navy) 0%, #1a1a3e 40%, var(--dark) 100%);
+  border-bottom: 3px solid var(--gold);
+  padding: 40px 20px 30px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+.hero::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(ellipse at 30% 50%, rgba(201,168,76,0.06) 0%, transparent 50%),
+              radial-gradient(ellipse at 70% 30%, rgba(42,41,87,0.15) 0%, transparent 50%);
+  pointer-events: none;
+}
+.hero h1 {
+  font-family: 'Oswald', sans-serif;
+  font-size: 3.2em;
+  font-weight: 700;
+  color: var(--gold);
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  position: relative;
+}
+.hero h2 {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 1.4em;
+  font-weight: 300;
+  color: var(--muted);
+  margin-top: 6px;
+  letter-spacing: 2px;
+}
+.hero .subtitle {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 1em;
+  color: var(--gold);
+  opacity: 0.7;
+  margin-top: 10px;
+  letter-spacing: 1px;
+}
+
+.container { max-width: 1400px; margin: 0 auto; padding: 20px; }
+
+.section {
+  margin: 30px 0;
+}
+.section-title {
+  font-family: 'Oswald', sans-serif;
+  font-size: 1.8em;
+  font-weight: 600;
+  color: var(--gold);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  border-bottom: 2px solid var(--card-border);
+  padding-bottom: 8px;
+  margin-bottom: 20px;
+}
+
+.card {
+  background: var(--card);
+  border: 1px solid var(--card-border);
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 16px;
+}
+
+.prediction-box {
+  background: linear-gradient(135deg, var(--navy), #1a1a3e);
+  border: 2px solid var(--gold);
+  border-radius: 12px;
+  padding: 30px;
+  text-align: center;
+  margin: 20px 0;
+}
+.prediction-box h3 {
+  font-family: 'Oswald', sans-serif;
+  font-size: 1.6em;
+  color: var(--gold);
+  margin-bottom: 10px;
+}
+.prediction-box .winner {
+  font-family: 'Oswald', sans-serif;
+  font-size: 2.4em;
+  font-weight: 700;
+  color: #fff;
+  text-shadow: 0 0 20px rgba(201,168,76,0.4);
+}
+.prediction-box .detail {
+  color: var(--muted);
+  margin-top: 8px;
+  font-size: 0.95em;
+}
+
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+.grid-4 { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 12px; }
+
+@media (max-width: 900px) {
+  .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
+}
+
+.tier-label {
+  font-family: 'Oswald', sans-serif;
+  font-size: 1.3em;
+  font-weight: 700;
+  padding: 6px 16px;
+  border-radius: 4px;
+  display: inline-block;
+  margin-bottom: 10px;
+}
+
+.team-chip {
+  display: inline-block;
+  background: var(--dark);
+  border: 1px solid var(--card-border);
+  border-radius: 6px;
+  padding: 6px 12px;
+  margin: 3px;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.95em;
+}
+.team-chip .num {
+  font-weight: 600;
+  color: var(--gold);
+}
+.team-chip .name {
+  color: var(--muted);
+  font-weight: 300;
+}
+
+.chart-container {
+  position: relative;
+  width: 100%;
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+.stat-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 5px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 1.05em;
+}
+.stat-row .label { color: var(--muted); }
+.stat-row .value { font-weight: 600; }
+
+.bar-container {
+  display: flex;
+  align-items: center;
+  margin: 4px 0;
+}
+.bar-label {
+  width: 180px;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.95em;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+}
+.bar-track {
+  flex: 1;
+  height: 22px;
+  background: var(--dark);
+  border-radius: 4px;
+  overflow: hidden;
+  margin: 0 8px;
+}
+.bar-fill {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.6s ease;
+}
+.bar-value {
+  width: 60px;
+  text-align: right;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 600;
+  font-size: 0.95em;
+}
+
+.matchup-card {
+  background: var(--card);
+  border: 1px solid var(--card-border);
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 12px;
+}
+.matchup-title {
+  font-family: 'Oswald', sans-serif;
+  color: var(--gold);
+  font-size: 1.1em;
+  margin-bottom: 8px;
+}
+
+.tag {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 3px;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.85em;
+  font-weight: 500;
+}
+.tag-gold { background: rgba(201,168,76,0.2); color: var(--gold); }
+.tag-green { background: rgba(76,175,80,0.2); color: var(--green); }
+.tag-red { background: rgba(244,67,54,0.2); color: var(--red); }
+.tag-blue { background: rgba(33,150,243,0.2); color: var(--blue); }
+.tag-orange { background: rgba(255,152,0,0.2); color: var(--orange); }
+
+.footer {
+  text-align: center;
+  padding: 30px;
+  color: var(--muted);
+  font-size: 0.85em;
+  border-top: 1px solid var(--card-border);
+  margin-top: 40px;
+}
+.footer span { color: var(--gold); font-weight: 600; }
+
+.alliance-row {
+  display: grid;
+  grid-template-columns: 40px 1fr 1fr 1fr 80px;
+  gap: 8px;
+  padding: 8px;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+  align-items: center;
+  font-family: 'Barlow Condensed', sans-serif;
+}
+.alliance-row.header {
+  color: var(--gold);
+  font-weight: 600;
+  font-size: 0.9em;
+  border-bottom: 2px solid var(--card-border);
+}
+.alliance-num {
+  font-family: 'Oswald', sans-serif;
+  font-weight: 700;
+  font-size: 1.2em;
+  color: var(--gold);
+}
+.alliance-strength {
+  font-weight: 600;
+  text-align: right;
+}
+
+.our-team {
+  background: rgba(201,168,76,0.08);
+  border-left: 3px solid var(--gold);
+}
+
+.intel-text {
+  color: var(--text);
+  font-size: 0.95em;
+  line-height: 1.6;
+  margin: 8px 0;
+}
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <h1>BAYOU REGIONAL 2026</h1>
+  <h2>Pontchartrain Center &bull; Kenner, Louisiana &bull; April 1&ndash;4</h2>
+  <div class="subtitle">BombsAway v16.3937 &mdash; Pre-Quals Analysis &amp; Predictions</div>
+</div>
+
+<div class="container">
+
+<!-- PREDICTED WINNER -->
+<div class="prediction-box">
+  <h3>PREDICTED EVENT WINNER</h3>
+  <div class="winner">4635 &mdash; PrepaTec Botbusters</div>
+  <div class="detail">Undefeated 20-0 across 2 events &bull; Best OPR in field (204.5) &bull; EPA 185.2</div>
+  <div class="detail" style="margin-top:4px; color:var(--orange);">Predicted winning alliance: 4635 + 8044 + 4087</div>
+</div>
+
+<!-- POWER TIER RANKINGS -->
+<div class="section">
+  <div class="section-title">Power Tier Rankings</div>
+
+  <div class="grid-3">
+    <!-- TIER S -->
+    <div class="card">
+      <div class="tier-label" style="background:rgba(255,215,0,0.15); color:var(--yellow);">S TIER — Event Winners</div>
+      <div>
+        <div class="team-chip"><span class="num">4635</span> <span class="name">Botbusters</span> <span class="tag tag-gold">OPR 204.5</span></div>
+        <div class="team-chip"><span class="num">8044</span> <span class="name">Denham Venom</span> <span class="tag tag-gold">OPR 191.7</span></div>
+        <div class="team-chip"><span class="num">3478</span> <span class="name">LamBot</span> <span class="tag tag-gold">OPR 185.0</span></div>
+      </div>
+      <p class="intel-text" style="margin-top:10px;">These three are in a different league. All undefeated or near-undefeated. Any alliance with two of these three wins the event.</p>
+    </div>
+
+    <!-- TIER A -->
+    <div class="card">
+      <div class="tier-label" style="background:rgba(76,175,80,0.15); color:var(--green);">A TIER — Alliance Captains</div>
+      <div>
+        <div class="team-chip"><span class="num">3937</span> <span class="name">Breakaway</span> <span class="tag tag-green">OPR 142.5</span></div>
+        <div class="team-chip"><span class="num">4087</span> <span class="name">Voodoo Voltage</span> <span class="tag tag-green">OPR 124.6</span></div>
+        <div class="team-chip"><span class="num">16</span> <span class="name">Bomb Squad</span> <span class="tag tag-green">OPR 94.0</span></div>
+        <div class="team-chip"><span class="num">2183</span> <span class="name">Tigerbots</span> <span class="tag tag-green">OPR 90.1</span></div>
+      </div>
+      <p class="intel-text" style="margin-top:10px;">Solid alliance captain candidates. 3937 is the strongest — finals at ARLI. 16 and 2183 improving.</p>
+    </div>
+
+    <!-- TIER B -->
+    <div class="card">
+      <div class="tier-label" style="background:rgba(33,150,243,0.15); color:var(--blue);">B TIER — Strong Picks</div>
+      <div>
+        <div class="team-chip"><span class="num">2992</span> <span class="name">Prometheus</span> <span class="tag tag-blue">OPR 87.1</span></div>
+        <div class="team-chip"><span class="num">3039</span> <span class="name">Wildcat</span> <span class="tag tag-blue">OPR 85.1</span></div>
+        <div class="team-chip"><span class="num">8808</span> <span class="name">Tech Pirates</span> <span class="tag tag-blue">OPR 68.1</span></div>
+        <div class="team-chip"><span class="num">5887</span> <span class="name">Imperator</span> <span class="tag tag-blue">OPR 65.7</span></div>
+        <div class="team-chip"><span class="num">3753</span> <span class="name">BulahBots</span> <span class="tag tag-blue">OPR 60.6</span></div>
+        <div class="team-chip"><span class="num">364</span> <span class="name">Team Fusion</span> <span class="tag tag-blue">OPR 57.8</span></div>
+        <div class="team-chip"><span class="num">456</span> <span class="name">Siege Robotics</span> <span class="tag tag-blue">OPR 57.2</span></div>
+        <div class="team-chip"><span class="num">3616</span> <span class="name">Phenomena</span> <span class="tag tag-blue">OPR 52.3</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid-2" style="margin-top:16px;">
+    <!-- TIER C -->
+    <div class="card">
+      <div class="tier-label" style="background:rgba(255,152,0,0.15); color:var(--orange);">C TIER — Role Players</div>
+      <div>
+        <div class="team-chip"><span class="num">1902</span> <span class="name">Exploding Bacon</span></div>
+        <div class="team-chip"><span class="num">4336</span> <span class="name">Ramageddon</span></div>
+        <div class="team-chip"><span class="num">9405</span> <span class="name">RouxBots</span></div>
+        <div class="team-chip"><span class="num">7072</span> <span class="name">O.G.R.E.</span></div>
+        <div class="team-chip"><span class="num">3468</span> <span class="name">MAGNAtech</span></div>
+        <div class="team-chip"><span class="num">3284</span> <span class="name">LASER 3284</span></div>
+        <div class="team-chip"><span class="num">3824</span> <span class="name">RoHAWKtics</span></div>
+        <div class="team-chip"><span class="num">2221</span> <span class="name">Robodawgs</span></div>
+        <div class="team-chip"><span class="num">10101</span> <span class="name">Critical Hit</span></div>
+        <div class="team-chip"><span class="num">1421</span> <span class="name">Team CHAOS</span></div>
+      </div>
+    </div>
+
+    <!-- TIER D + TRAPS -->
+    <div class="card">
+      <div class="tier-label" style="background:rgba(244,67,54,0.15); color:var(--red);">D TIER + TRAPS</div>
+      <div style="margin-bottom:8px;">
+        <div class="team-chip" style="border-color:var(--red);"><span class="num" style="color:var(--red);">9309</span> <span class="name">Metal Mages</span> <span class="tag tag-red">TRAP: -3.7 OPR</span></div>
+        <div class="team-chip" style="border-color:var(--red);"><span class="num" style="color:var(--red);">9717</span> <span class="name">Poultronix</span> <span class="tag tag-red">TRAP: -0.4 OPR</span></div>
+        <div class="team-chip" style="border-color:var(--red);"><span class="num" style="color:var(--red);">2080</span> <span class="name">Torbotics</span> <span class="tag tag-red">-18.6 OPR</span></div>
+      </div>
+      <p class="intel-text"><strong style="color:var(--red);">WARNING:</strong> 9309 has a 7-2 record with NEGATIVE OPR — they win on partner strength, not their own. Do NOT pick them thinking they're good.</p>
+      <p class="intel-text" style="margin-top:6px;">Unknowns: 1818, 5705, 5965, 6068, 6489, 7288, 9313, 9456, 9660, 9699, 9708, 9761, 9768, 9787, 10217, 10446, 10497, 10550, 10929, 10943, 11260, 11276, 11342</p>
+    </div>
+  </div>
+</div>
+
+<!-- RADAR CHARTS - TOP 6 -->
+<div class="section">
+  <div class="section-title">Top Team Profiles — Radar Analysis</div>
+  <div class="grid-3">
+    <div class="card"><div class="chart-container"><canvas id="radar4635"></canvas></div></div>
+    <div class="card"><div class="chart-container"><canvas id="radar8044"></canvas></div></div>
+    <div class="card"><div class="chart-container"><canvas id="radar3478"></canvas></div></div>
+    <div class="card"><div class="chart-container"><canvas id="radar3937"></canvas></div></div>
+    <div class="card"><div class="chart-container"><canvas id="radar4087"></canvas></div></div>
+    <div class="card"><div class="chart-container"><canvas id="radar16"></canvas></div></div>
+  </div>
+
+  <!-- 3v3 OVERLAY RADARS -->
+  <div class="grid-2" style="margin-top:20px;">
+    <div class="card" style="border-color:var(--yellow);">
+      <div style="text-align:center; font-family:'Oswald'; font-size:1.3em; color:var(--yellow); margin-bottom:8px;">S-TIER OVERLAY</div>
+      <div class="chart-container" style="max-width:500px;">
+        <canvas id="radarSTier"></canvas>
+      </div>
+    </div>
+    <div class="card" style="border-color:var(--gold);">
+      <div style="text-align:center; font-family:'Oswald'; font-size:1.3em; color:var(--gold); margin-bottom:8px;">A-TIER OVERLAY — OUR ALLIANCE</div>
+      <div class="chart-container" style="max-width:500px;">
+        <canvas id="radarATier"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- S vs A COMBINED -->
+  <div class="card" style="margin-top:16px; border-color:var(--gold);">
+    <div style="text-align:center; font-family:'Oswald'; font-size:1.5em; color:var(--gold); margin-bottom:8px;">S-TIER vs A-TIER — ALL 6 OVERLAID</div>
+    <div class="chart-container" style="max-width:600px;">
+      <canvas id="radarAll6"></canvas>
+    </div>
+  </div>
+</div>
+
+<!-- OPR BAR CHART -->
+<div class="section">
+  <div class="section-title">OPR Rankings — All Teams with Data</div>
+  <div class="card" id="oprBars"></div>
+</div>
+
+<!-- EPA BREAKDOWN -->
+<div class="section">
+  <div class="section-title">EPA Breakdown — Top 15</div>
+  <div class="card">
+    <canvas id="epaChart" style="width:100%; max-height:500px;"></canvas>
+  </div>
+</div>
+
+<!-- ALLIANCE PREDICTIONS -->
+<div class="section">
+  <div class="section-title">Predicted Alliance Selection</div>
+  <div class="card">
+    <p class="intel-text" style="margin-bottom:16px;">Based on OPR/EPA power rankings and strategic fit. Assumes top-8 seeds pick optimally.</p>
+    <div class="alliance-row header">
+      <div>#</div><div>Captain</div><div>1st Pick</div><div>2nd Pick</div><div>Strength</div>
+    </div>
+    <div class="alliance-row">
+      <div class="alliance-num">1</div>
+      <div><span class="tag tag-gold">4635</span> Botbusters</div>
+      <div><span class="tag tag-green">8044</span> Denham Venom</div>
+      <div><span class="tag tag-blue">2992</span> Prometheus</div>
+      <div class="alliance-strength" style="color:var(--yellow);">483</div>
+    </div>
+    <div class="alliance-row">
+      <div class="alliance-num">2</div>
+      <div><span class="tag tag-gold">3478</span> LamBot</div>
+      <div><span class="tag tag-green">4087</span> Voodoo Voltage</div>
+      <div><span class="tag tag-blue">3039</span> Wildcat</div>
+      <div class="alliance-strength" style="color:var(--yellow);">395</div>
+    </div>
+    <div class="alliance-row our-team">
+      <div class="alliance-num">3</div>
+      <div><span class="tag tag-gold">3937</span> Breakaway</div>
+      <div><span class="tag tag-green">16</span> Bomb Squad</div>
+      <div><span class="tag tag-blue">8808</span> Tech Pirates</div>
+      <div class="alliance-strength" style="color:var(--green);">305</div>
+    </div>
+    <div class="alliance-row">
+      <div class="alliance-num">4</div>
+      <div><span class="tag tag-gold">2183</span> Tigerbots</div>
+      <div><span class="tag tag-green">3753</span> BulahBots</div>
+      <div><span class="tag tag-blue">5887</span> Imperator</div>
+      <div class="alliance-strength" style="color:var(--green);">216</div>
+    </div>
+    <div class="alliance-row">
+      <div class="alliance-num">5</div>
+      <div><span class="tag tag-gold">364</span> Team Fusion</div>
+      <div><span class="tag tag-green">456</span> Siege</div>
+      <div><span class="tag tag-blue">3616</span> Phenomena</div>
+      <div class="alliance-strength">167</div>
+    </div>
+    <div class="alliance-row">
+      <div class="alliance-num">6</div>
+      <div><span class="tag tag-gold">1902</span> Exploding Bacon</div>
+      <div><span class="tag tag-green">4336</span> Ramageddon</div>
+      <div><span class="tag tag-blue">7072</span> O.G.R.E.</div>
+      <div class="alliance-strength">124</div>
+    </div>
+    <div class="alliance-row">
+      <div class="alliance-num">7</div>
+      <div><span class="tag tag-gold">9405</span> RouxBots</div>
+      <div><span class="tag tag-green">3824</span> RoHAWKtics</div>
+      <div><span class="tag tag-blue">3468</span> MAGNAtech</div>
+      <div class="alliance-strength">108</div>
+    </div>
+    <div class="alliance-row">
+      <div class="alliance-num">8</div>
+      <div><span class="tag tag-gold">3284</span> LASER</div>
+      <div><span class="tag tag-green">2221</span> Robodawgs</div>
+      <div><span class="tag tag-blue">1421</span> CHAOS</div>
+      <div class="alliance-strength">69</div>
+    </div>
+  </div>
+</div>
+
+<!-- TEAM 16 & 3937 SCOUTING REPORT -->
+<div class="section">
+  <div class="section-title">Bomb Squad &amp; Breakaway — Our Path to Victory</div>
+  <div class="grid-2">
+    <div class="card our-team">
+      <h3 style="font-family:'Oswald'; color:var(--gold); font-size:1.3em;">16 — BOMB SQUAD</h3>
+      <div class="stat-row"><span class="label">OPR</span><span class="value" style="color:var(--green);">94.0</span></div>
+      <div class="stat-row"><span class="label">EPA Total</span><span class="value">84.7</span></div>
+      <div class="stat-row"><span class="label">EPA Auto</span><span class="value" style="color:var(--green);">20.5</span></div>
+      <div class="stat-row"><span class="label">EPA Teleop</span><span class="value" style="color:var(--blue);">48.2</span></div>
+      <div class="stat-row"><span class="label">EPA Endgame</span><span class="value" style="color:var(--orange);">16.0</span></div>
+      <div class="stat-row"><span class="label">Prior Record</span><span class="value" style="color:var(--green);">8-4</span></div>
+      <div class="stat-row"><span class="label">ARLI Result</span><span class="value">Rank #5, Semis</span></div>
+      <div class="stat-row"><span class="label">Quals Matches</span><span class="value">Q5, Q11, Q18, Q34, Q41, Q49, Q56, Q64</span></div>
+      <p class="intel-text" style="margin-top:12px;"><strong>Strategy:</strong> Solid scorer with room to grow. Best path is captain seed 5-8 and get picked by 3937 into Alliance 3. 16+3937 is a proven partnership from ARLI.</p>
+    </div>
+    <div class="card our-team">
+      <h3 style="font-family:'Oswald'; color:var(--gold); font-size:1.3em;">3937 — BREAKAWAY</h3>
+      <div class="stat-row"><span class="label">OPR</span><span class="value" style="color:var(--green);">142.5</span></div>
+      <div class="stat-row"><span class="label">EPA Total</span><span class="value">128.4</span></div>
+      <div class="stat-row"><span class="label">EPA Auto</span><span class="value" style="color:var(--green);">30.1</span></div>
+      <div class="stat-row"><span class="label">EPA Teleop</span><span class="value" style="color:var(--blue);">78.2</span></div>
+      <div class="stat-row"><span class="label">EPA Endgame</span><span class="value" style="color:var(--orange);">20.1</span></div>
+      <div class="stat-row"><span class="label">Prior Record</span><span class="value" style="color:var(--green);">10-2</span></div>
+      <div class="stat-row"><span class="label">ARLI Result</span><span class="value" style="color:var(--yellow);">Rank #3, FINALS</span></div>
+      <div class="stat-row"><span class="label">Quals Matches</span><span class="value">Q6, Q11, Q20, Q28, Q43, Q53, Q62, Q68</span></div>
+      <p class="intel-text" style="margin-top:12px;"><strong>Strategy:</strong> Alliance captain material. Should seed top-4 and pick 16 as first pick. The 16+3937 alliance with a strong B-tier 2nd pick can make finals.</p>
+    </div>
+  </div>
+</div>
+
+<!-- KEY Q1 MATCHUPS -->
+<div class="section">
+  <div class="section-title">Key Matches to Watch — Day 1</div>
+  <div class="grid-2">
+    <div class="matchup-card">
+      <div class="matchup-title">Q5 — Bomb Squad's First Match</div>
+      <div style="color:var(--red);">Red: 3478 LamBot, 3824 RoHAWKtics, 10929 Tarpon</div>
+      <div style="color:var(--blue);">Blue: <strong>16 Bomb Squad</strong>, 10550 Roneagles, 1421 CHAOS</div>
+      <p class="intel-text">Tough opener — 3478 is S-tier. Focus on execution, not winning. Data matters more than W here.</p>
+    </div>
+    <div class="matchup-card">
+      <div class="matchup-title">Q6 — Breakaway's First Match</div>
+      <div style="color:var(--red);">Red: 2992 Prometheus, 10943 RoboStangs, <strong>3937 Breakaway</strong></div>
+      <div style="color:var(--blue);">Blue: 5965 Power Struck, 11342 StingVille, 9660 Dolphinbots</div>
+      <p class="intel-text">Favorable matchup for 3937. Should be a comfortable win to start the day.</p>
+    </div>
+    <div class="matchup-card">
+      <div class="matchup-title">Q11 — Bomb Squad + Breakaway Together</div>
+      <div style="color:var(--red);">Red: 9717 Poultronix, 7094 Alpha Omega, 4635 Botbusters</div>
+      <div style="color:var(--blue);">Blue: 5705 Desert Eagles, <strong>3937 Breakaway</strong>, <strong>16 Bomb Squad</strong></div>
+      <p class="intel-text">16 and 3937 on the same alliance vs the #1 seed. This is the match to prove the partnership works against elite competition.</p>
+    </div>
+    <div class="matchup-card">
+      <div class="matchup-title">Q18 — Bomb Squad vs Venom</div>
+      <div style="color:var(--red);">Red: 8044 Denham Venom, 1818 Team Talos, <strong>16 Bomb Squad</strong></div>
+      <div style="color:var(--blue);">Blue: 3284 LASER, 9313 ROBOhana, 3616 Phenomena</div>
+      <p class="intel-text">16 paired with S-tier 8044. Big chance to rack up a win and good alliance score.</p>
+    </div>
+  </div>
+</div>
+
+<!-- WIN PROBABILITY -->
+<div class="section">
+  <div class="section-title">Playoff Win Probability</div>
+  <div class="card">
+    <canvas id="playoffChart" style="width:100%; max-height:400px;"></canvas>
+  </div>
+</div>
+
+</div>
+
+<div class="footer">
+  <span>BombsAway v16.3937</span> &mdash; Bayou Regional Pre-Quals Analysis<br>
+  Generated April 2, 2026 &bull; Team 16 Bomb Squad + Team 3937 Breakaway<br>
+  Data: Statbotics EPA, TBA OPR, ARLI scouting, Magnolia results
+</div>
+
+<script>
+// Radar chart data
+const radarLabels = ['Auto','Teleop','Endgame','OPR','Record','Consistency'];
+const maxVals = [42, 118, 25, 205, 20, 10];
+
+function norm(vals) { return vals.map((v,i) => Math.max(0, (v / maxVals[i]) * 100)); }
+
+const teams = {
+  '4635 Botbusters': { color:'#FFD700', data:[42.1,118.4,24.7,204.5,20,9] },
+  '8044 Denham Venom': { color:'#4CAF50', data:[38.5,110.2,24.1,191.7,18,9] },
+  '3478 LamBot': { color:'#2196F3', data:[40.2,105.3,22.5,185.0,10,9] },
+  '3937 Breakaway': { color:'#C9A84C', data:[30.1,78.2,20.1,142.5,10,8] },
+  '4087 Voodoo Voltage': { color:'#FF9800', data:[26.4,68.7,17.2,124.6,7,8] },
+  '16 Bomb Squad': { color:'#E0E0E0', data:[20.5,48.2,16.0,94.0,8,7] }
+};
+
+const canvasIds = {
+  '4635 Botbusters':'radar4635','8044 Denham Venom':'radar8044',
+  '3478 LamBot':'radar3478','3937 Breakaway':'radar3937',
+  '4087 Voodoo Voltage':'radar4087','16 Bomb Squad':'radar16'
+};
+
+for (const [name, t] of Object.entries(teams)) {
+  new Chart(document.getElementById(canvasIds[name]), {
+    type:'radar',
+    data:{
+      labels:radarLabels,
+      datasets:[{
+        label:name, data:norm(t.data),
+        borderColor:t.color, backgroundColor:t.color+'33',
+        borderWidth:2, pointRadius:4, pointBackgroundColor:t.color
+      }]
+    },
+    options:{
+      responsive:true,
+      plugins:{
+        title:{ display:true, text:name, color:t.color, font:{ family:'Oswald', size:16, weight:600 } },
+        legend:{ display:false }
+      },
+      scales:{
+        r:{
+          min:0, max:100,
+          ticks:{ display:false },
+          grid:{ color:'rgba(255,255,255,0.08)' },
+          angleLines:{ color:'rgba(255,255,255,0.08)' },
+          pointLabels:{ color:'#808080', font:{ family:'Barlow Condensed', size:11 } }
+        }
+      }
+    }
+  });
+}
+
+// S-Tier overlay (4635, 8044, 3478)
+const radarOverlayOpts = {
+  responsive:true,
+  plugins:{ legend:{ labels:{ color:'#E0E0E0', font:{ family:'Barlow Condensed', size:13 } } } },
+  scales:{ r:{
+    min:0, max:100,
+    ticks:{ display:false },
+    grid:{ color:'rgba(255,255,255,0.1)' },
+    angleLines:{ color:'rgba(255,255,255,0.1)' },
+    pointLabels:{ color:'#B0B0B0', font:{ family:'Barlow Condensed', size:13 } }
+  }}
+};
+
+new Chart(document.getElementById('radarSTier'), {
+  type:'radar',
+  data:{
+    labels:radarLabels,
+    datasets:[
+      { label:'4635 Botbusters', data:norm(teams['4635 Botbusters'].data), borderColor:'#FFD700', backgroundColor:'rgba(255,215,0,0.1)', borderWidth:2.5, pointRadius:4, pointBackgroundColor:'#FFD700' },
+      { label:'8044 Denham Venom', data:norm(teams['8044 Denham Venom'].data), borderColor:'#4CAF50', backgroundColor:'rgba(76,175,80,0.1)', borderWidth:2.5, pointRadius:4, pointBackgroundColor:'#4CAF50' },
+      { label:'3478 LamBot', data:norm(teams['3478 LamBot'].data), borderColor:'#2196F3', backgroundColor:'rgba(33,150,243,0.1)', borderWidth:2.5, pointRadius:4, pointBackgroundColor:'#2196F3' }
+    ]
+  },
+  options:radarOverlayOpts
+});
+
+// A-Tier overlay (3937, 4087, 16)
+new Chart(document.getElementById('radarATier'), {
+  type:'radar',
+  data:{
+    labels:radarLabels,
+    datasets:[
+      { label:'3937 Breakaway', data:norm(teams['3937 Breakaway'].data), borderColor:'#C9A84C', backgroundColor:'rgba(201,168,76,0.1)', borderWidth:2.5, pointRadius:4, pointBackgroundColor:'#C9A84C' },
+      { label:'4087 Voodoo Voltage', data:norm(teams['4087 Voodoo Voltage'].data), borderColor:'#FF9800', backgroundColor:'rgba(255,152,0,0.1)', borderWidth:2.5, pointRadius:4, pointBackgroundColor:'#FF9800' },
+      { label:'16 Bomb Squad', data:norm(teams['16 Bomb Squad'].data), borderColor:'#E0E0E0', backgroundColor:'rgba(224,224,224,0.1)', borderWidth:2.5, pointRadius:4, pointBackgroundColor:'#E0E0E0' }
+    ]
+  },
+  options:radarOverlayOpts
+});
+
+// All 6 overlaid
+new Chart(document.getElementById('radarAll6'), {
+  type:'radar',
+  data:{
+    labels:radarLabels,
+    datasets:[
+      { label:'4635 Botbusters', data:norm(teams['4635 Botbusters'].data), borderColor:'#FFD700', backgroundColor:'transparent', borderWidth:2, borderDash:[], pointRadius:3, pointBackgroundColor:'#FFD700' },
+      { label:'8044 Venom', data:norm(teams['8044 Denham Venom'].data), borderColor:'#4CAF50', backgroundColor:'transparent', borderWidth:2, pointRadius:3, pointBackgroundColor:'#4CAF50' },
+      { label:'3478 LamBot', data:norm(teams['3478 LamBot'].data), borderColor:'#2196F3', backgroundColor:'transparent', borderWidth:2, pointRadius:3, pointBackgroundColor:'#2196F3' },
+      { label:'3937 Breakaway', data:norm(teams['3937 Breakaway'].data), borderColor:'#C9A84C', backgroundColor:'transparent', borderWidth:2, borderDash:[6,3], pointRadius:3, pointBackgroundColor:'#C9A84C' },
+      { label:'4087 Voodoo', data:norm(teams['4087 Voodoo Voltage'].data), borderColor:'#FF9800', backgroundColor:'transparent', borderWidth:2, borderDash:[6,3], pointRadius:3, pointBackgroundColor:'#FF9800' },
+      { label:'16 Bomb Squad', data:norm(teams['16 Bomb Squad'].data), borderColor:'#FFFFFF', backgroundColor:'rgba(255,255,255,0.05)', borderWidth:3, borderDash:[6,3], pointRadius:5, pointBackgroundColor:'#FFFFFF' }
+    ]
+  },
+  options:{
+    responsive:true,
+    plugins:{ legend:{ labels:{ color:'#E0E0E0', font:{ family:'Barlow Condensed', size:12 }, usePointStyle:true, pointStyle:'circle' } } },
+    scales:{ r:{
+      min:0, max:100,
+      ticks:{ display:false },
+      grid:{ color:'rgba(255,255,255,0.1)' },
+      angleLines:{ color:'rgba(255,255,255,0.1)' },
+      pointLabels:{ color:'#B0B0B0', font:{ family:'Barlow Condensed', size:14, weight:'600' } }
+    }}
+  }
+});
+
+// OPR Bar chart
+const oprData = [
+  {n:'4635 Botbusters',v:204.5},{n:'8044 Denham Venom',v:191.7},{n:'3478 LamBot',v:185.0},
+  {n:'3937 Breakaway',v:142.5},{n:'4087 Voodoo Voltage',v:124.6},{n:'16 Bomb Squad',v:94.0},
+  {n:'2183 Tigerbots',v:90.1},{n:'2992 Prometheus',v:87.1},{n:'3039 Wildcat',v:85.1},
+  {n:'8808 Tech Pirates',v:68.1},{n:'5887 Imperator',v:65.7},{n:'3753 BulahBots',v:60.6},
+  {n:'364 Team Fusion',v:57.8},{n:'456 Siege Robotics',v:57.2},{n:'3616 Phenomena',v:52.3},
+  {n:'1902 Exploding Bacon',v:44.7},{n:'4336 Ramageddon',v:42.7},{n:'9405 RouxBots',v:38.9},
+  {n:'7072 O.G.R.E.',v:37.0},{n:'3468 MAGNAtech',v:29.1},{n:'3284 LASER',v:26.6},
+  {n:'7094 Alpha Omega',v:26.6},{n:'3824 RoHAWKtics',v:24.0},{n:'2221 Robodawgs',v:22.9},
+  {n:'1421 Team CHAOS',v:19.5},{n:'10217 Catahoula',v:17.7},{n:'10929 Tarpon',v:13.5},
+  {n:'10101 Critical Hit',v:5.6},{n:'5863 Hypercubed',v:0.6},{n:'9717 Poultronix',v:-0.4},
+  {n:'9309 Metal Mages',v:-3.7},{n:'2080 Torbotics',v:-18.6}
+];
+const maxOpr = 210;
+const barDiv = document.getElementById('oprBars');
+oprData.forEach(t => {
+  const pct = Math.max(0, (t.v / maxOpr) * 100);
+  const color = t.v > 150 ? 'var(--yellow)' : t.v > 100 ? 'var(--green)' : t.v > 50 ? 'var(--gold)' : t.v > 0 ? 'var(--blue)' : 'var(--red)';
+  const isUs = t.n.includes('Bomb Squad') || t.n.includes('Breakaway');
+  barDiv.innerHTML += `<div class="bar-container" ${isUs ? 'style="background:rgba(201,168,76,0.06);border-radius:4px;"' : ''}>
+    <div class="bar-label" ${isUs?'style="color:var(--gold);font-weight:600;"':''}>${t.n}</div>
+    <div class="bar-track"><div class="bar-fill" style="width:${pct}%;background:${color};"></div></div>
+    <div class="bar-value" style="color:${color}">${t.v.toFixed(1)}</div>
+  </div>`;
+});
+
+// EPA Stacked Bar
+const epaTeams = ['4635','8044','3478','3937','4087','16','2183','2992','3039','8808','5887','3753','364','456','3616'];
+const epaNames = ['Botbusters','Venom','LamBot','Breakaway','Voodoo','Bomb Squad','Tigerbots','Prometheus','Wildcat','Pirates','Imperator','BulahBots','Fusion','Siege','Phenomena'];
+const epaAuto = [42.1,38.5,40.2,30.1,26.4,20.5,18.3,18.1,17.8,14.0,13.0,17.0,16.5,14.0,13.0];
+const epaTele = [118.4,110.2,105.3,78.2,68.7,48.2,49.6,46.5,45.1,36.1,35.0,48.0,42.0,34.0,31.0];
+const epaEnd = [24.7,24.1,22.5,20.1,17.2,16.0,13.3,13.5,13.5,11.1,10.0,13.5,13.5,9.0,8.0];
+
+new Chart(document.getElementById('epaChart'), {
+  type:'bar',
+  data:{
+    labels:epaNames,
+    datasets:[
+      { label:'Auto', data:epaAuto, backgroundColor:'#4CAF50' },
+      { label:'Teleop', data:epaTele, backgroundColor:'#2196F3' },
+      { label:'Endgame', data:epaEnd, backgroundColor:'#FF9800' }
+    ]
+  },
+  options:{
+    responsive:true,
+    plugins:{
+      legend:{ labels:{ color:'#808080', font:{ family:'Barlow Condensed' } } },
+      title:{ display:false }
+    },
+    scales:{
+      x:{ stacked:true, ticks:{ color:'#808080', font:{ family:'Barlow Condensed' } }, grid:{ display:false } },
+      y:{ stacked:true, ticks:{ color:'#808080', font:{ family:'Barlow Condensed' } }, grid:{ color:'rgba(255,255,255,0.05)' } }
+    }
+  }
+});
+
+// Playoff probability (horizontal bar)
+const playoffTeams = ['A1: 4635+8044+2992','A2: 3478+4087+3039','A3: 3937+16+8808','A4: 2183+3753+5887','A5: 364+456+3616','A6: 1902+4336+7072','A7: 9405+3824+3468','A8: 3284+2221+1421'];
+const playoffPct = [94,82,48,30,12,8,5,3];
+const playoffColors = ['#FFD700','#4CAF50','#C9A84C','#2196F3','#808080','#808080','#808080','#808080'];
+
+new Chart(document.getElementById('playoffChart'), {
+  type:'bar',
+  data:{
+    labels:playoffTeams,
+    datasets:[{
+      label:'Win Probability %',
+      data:playoffPct,
+      backgroundColor:playoffColors,
+      borderWidth:0
+    }]
+  },
+  options:{
+    indexAxis:'y',
+    responsive:true,
+    plugins:{
+      legend:{ display:false },
+      title:{ display:true, text:'Estimated Playoff Win Probability', color:'#C9A84C', font:{ family:'Oswald', size:16 } }
+    },
+    scales:{
+      x:{ max:100, ticks:{ color:'#808080', callback:v=>v+'%', font:{family:'Barlow Condensed'} }, grid:{ color:'rgba(255,255,255,0.05)' } },
+      y:{ ticks:{ color:'#E0E0E0', font:{ family:'Barlow Condensed', size:12 } }, grid:{ display:false } }
+    }
+  }
+});
+</script>
+</body>
+</html>
